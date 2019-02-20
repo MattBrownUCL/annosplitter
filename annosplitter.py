@@ -15,6 +15,11 @@ padding = 0
 target_tier = "RH-IDgloss"
 annotation_match = ""
 
+# get command line arguments
+if len(sys.argv) >= 2: padding = int(sys.argv[1])
+if len(sys.argv) >= 3: target_tier = sys.argv[2]
+if len(sys.argv) >= 4: annotation_match = sys.argv[3]
+
 # For media file locations, BSL Corpus EAFs have hard references to a Mac-style volume mount
 # Need to convert those to a Windows drive mapping for the time being
 # Replace these values with None if you're running on a Corpus Mac, and use Finder to connect to the Corpus volume
@@ -38,6 +43,13 @@ if not os.path.exists(OUTPUT_PATH):
     print("Could not find \'" + OUTPUT_PATH + "\' folder, creating one.")
     os.makedirs(OUTPUT_PATH)
 
+# add annotation match (if it exists) to output path and create if necessary
+if annotation_match:
+    OUTPUT_PATH += "/" + annotation_match
+    if not os.path.exists(OUTPUT_PATH):
+        print("Could not find \'" + OUTPUT_PATH + "\' folder, creating one.")
+        os.makedirs(OUTPUT_PATH)
+   
 # check input folder exists
 if not os.path.exists(INPUT_PATH):
     print("Could not find \'" + INPUT_PATH + "\' folder, creating one.")
@@ -45,11 +57,6 @@ if not os.path.exists(INPUT_PATH):
     os.makedirs(INPUT_PATH)
     # stop - nothing to process
     sys.exit()
-
-# get command line arguments
-if len(sys.argv) >= 2: padding = int(sys.argv[1])
-if len(sys.argv) >= 3: target_tier = sys.argv[2]
-if len(sys.argv) >= 4: annotation_match = sys.argv[3]
 
 # walk through all EAF files in input folder
 for path, dirs, files in os.walk(INPUT_PATH):  
@@ -114,5 +121,3 @@ for path, dirs, files in os.walk(INPUT_PATH):
                             subprocess.run(cmdline, creationflags=DETACHED_PROCESS)
                         # But "reference" annotations reference an ALIGNABLE in the parent tier, sigh
                         # TODO
-
-#input("Finished! Press Enter to close: ")
