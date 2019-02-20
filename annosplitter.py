@@ -3,17 +3,18 @@ import xml.etree.ElementTree as ET
 
 # constants
 INPUT_PATH = "./input"
-OUTPUT_PATH = "./output"
 FFMPEG_PATH = "./ffmpeg/bin/ffmpeg.exe"
 FFMPEG_GLOBAL_OPTIONS = "-y -an"
 FFMPEG_CODEC_OPTIONS = "-c:v libx264 -vf scale=960:540"
 FFMPEG_CONTAINER = "mp4"
 DETACHED_PROCESS = 0x00000008
 
-# defaults
+# defaults / globals
 padding = 0
 target_tier = "RH-IDgloss"
 annotation_match = ""
+output_path = "./output"
+time_table = {}
 
 # get command line arguments
 if len(sys.argv) >= 2: padding = int(sys.argv[1])
@@ -35,20 +36,17 @@ MEDIA_QUALITY_REPLACE_3 = ".compressed"
 MEDIA_QUALITY_REPLACE_4 = "-comp"
 MEDIA_QUALITY_WITH = "Original Capture"
 
-# global vars
-time_table = {}
-
 # check output folder exists
-if not os.path.exists(OUTPUT_PATH):
-    print("Could not find \'" + OUTPUT_PATH + "\' folder, creating one.")
-    os.makedirs(OUTPUT_PATH)
+if not os.path.exists(output_path):
+    print("Could not find \'" + output_path + "\' folder, creating one.")
+    os.makedirs(output_path)
 
 # add annotation match (if it exists) to output path and create if necessary
 if annotation_match:
-    OUTPUT_PATH += "/" + annotation_match
-    if not os.path.exists(OUTPUT_PATH):
-        print("Could not find \'" + OUTPUT_PATH + "\' folder, creating one.")
-        os.makedirs(OUTPUT_PATH)
+    output_path += "/" + annotation_match
+    if not os.path.exists(output_path):
+        print("Could not find \'" + output_path + "\' folder, creating one.")
+        os.makedirs(output_path)
    
 # check input folder exists
 if not os.path.exists(INPUT_PATH):
@@ -113,7 +111,7 @@ for path, dirs, files in os.walk(INPUT_PATH):
                             # define input file
                             cmdline += " -i \"" + media_path + "\""
                             # define output codec and filename
-                            cmdline += " " + FFMPEG_CODEC_OPTIONS + " \"" + OUTPUT_PATH + "/" + short_file_name + "_" + time_table[sub_annotation.get("TIME_SLOT_REF1")] + "_" + time_table[sub_annotation.get("TIME_SLOT_REF2")] + "." + FFMPEG_CONTAINER + "\""
+                            cmdline += " " + FFMPEG_CODEC_OPTIONS + " \"" + output_path + "/" + short_file_name + "_" + time_table[sub_annotation.get("TIME_SLOT_REF1")] + "_" + time_table[sub_annotation.get("TIME_SLOT_REF2")] + "." + FFMPEG_CONTAINER + "\""
                             # run ffmpeg in a separate windowless process
                             print("Processing annotation " + sub_id + " ...")
                             if not os.path.exists(media_path): print("Error, media file not found: " + media_path)
